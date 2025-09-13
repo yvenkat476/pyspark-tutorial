@@ -1,0 +1,62 @@
+import random
+import pyttsx3
+import speech_recognition as sr
+
+# Initialize voice engine & recognizer
+engine = pyttsx3.init()
+recognizer = sr.Recognizer()
+
+# Predefined responses
+jokes = [
+    "Why don’t skeletons fight each other? They don’t have the guts!",
+    "I told my wife she should embrace her mistakes… She gave me a hug.",
+    "Why did the scarecrow win an award? Because he was outstanding in his field!"
+]
+
+roasts = [
+    "Your brain has too many tabs open, but none are responding.",
+    "You're like a cloud—always around, but never actually helpful!",
+    "I'd agree with you, but then we’d both be wrong."
+]
+
+def speak(text):
+    """Make Lumi speak."""
+    engine.say(text)
+    engine.runAndWait()
+    print(f"Lumi says: {text}")
+
+def recognize_speech():
+    """Listen for voice commands."""
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+
+        try:
+            command = recognizer.recognize_google(audio).lower()
+            print(f"You said: {command}")
+            return command
+        except sr.UnknownValueError:
+            speak("I didn't catch that, try again.")
+            return None
+        except sr.RequestError:
+            speak("Speech recognition service error.")
+            return None
+
+def process_command(command):
+    """Respond to user commands."""
+    if "joke" in command:
+        speak(random.choice(jokes))
+    elif "roast me" in command or "insult me" in command:
+        speak(random.choice(roasts))
+    elif "exit" in command or "bye" in command:
+        speak("Alright, see you later!")
+        exit()
+    else:
+        speak("I don't understand that command.")
+
+# Continuous voice interaction
+while True:
+    user_command = recognize_speech()
+    if user_command:
+        process_command(user_command)
